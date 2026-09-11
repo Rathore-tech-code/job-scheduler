@@ -15,7 +15,7 @@ export function useExecutionStream(maxItems = 30) {
   useEffect(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const client = new Client({
-      brokerURL: `${protocol}://${window.location.host}/ws`,
+      brokerURL: `${import.meta.env.VITE_WS_URL}/ws`,
       reconnectDelay: 3000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,

@@ -53,7 +53,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`/api${path}`, { ...options, headers });
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
+const res = await fetch(`${API_BASE_URL}/api${path}`, { ...options, headers });
 
   if (!res.ok) {
     let message = `Request failed with status ${res.status}`;
