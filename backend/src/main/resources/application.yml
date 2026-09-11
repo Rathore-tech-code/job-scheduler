@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: job-scheduler
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:job_scheduler}
+    username: ${DB_USER:scheduler}
+    password: ${DB_PASSWORD:scheduler}
+    hikari:
+      maximum-pool-size: 10
+      # NOTE on the "Asia/Calcutta" TimeZone FATAL error: pgjdbc always
+      # sends TimeZone.getDefault().getID() as a startup-packet parameter,
+      # and this cannot be overridden via a datasource/URL property -- not
+      # a "timezone" connection property, not "options=-c TimeZone=...".
+      # Both were tried directly against a real PostgreSQL 16 instance
+      # while deliberately keeping a bad JVM default, and both still
+      # produced the exact same FATAL error. This is a currently open
+      # pgjdbc bug (pgjdbc/pgjdbc#3642) in
+      # ConnectionFactoryImpl.createPostgresTimeZone(), which unconditionally
+      # derives the startup-packet value from the JVM default with no
+      # override hook. The only verified-effective fix is forcing the JVM
+      # default TimeZone *before* any connection opens -- see
+      # TimeZone.setDefault(...) in SchedulerApplication.main().
+
+  jpa:
+    hibernate:
+      ddl-auto: validate   # schema is owned by Flyway, not Hibernate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        # Zone Hibernate uses when converting java.time values (Instant,
+        # etc.) to/from JDBC. Unrelated to the startup-packet issue above --
+        # this is purely about conversion/display. All timestamp columns are
+        # TIMESTAMPTZ storing absolute instants, so this never changes what
+        # a stored value means.
+        jdbc:
+          time_zone: Asia/Kolkata
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+server:
+  port: ${SERVER_PORT:8080}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-this-super-secret-key-change-this-super-secret-key}
+    expiration-ms: 3600000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.scheduler: INFO
+    org.springframework.web.socket: WARN

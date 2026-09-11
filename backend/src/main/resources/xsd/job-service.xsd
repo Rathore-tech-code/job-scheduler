@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://scheduler.com/soap/jobs"
+           targetNamespace="http://scheduler.com/soap/jobs"
+           elementFormDefault="qualified">
+
+    <!-- Legacy-system integration surface: mirrors the REST job-creation
+         and status-lookup operations for SOAP-only enterprise clients. -->
+
+    <xs:element name="submitJobRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="cronExpression" type="xs:string"/>
+                <xs:element name="payload" type="xs:string" minOccurs="0"/>
+                <xs:element name="maxRetries" type="xs:int" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="submitJobResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="jobId" type="xs:string"/>
+                <xs:element name="status" type="xs:string"/>
+                <xs:element name="nextRunAt" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getJobStatusRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="jobId" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getJobStatusResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="jobId" type="xs:string"/>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="status" type="xs:string"/>
+                <xs:element name="nextRunAt" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.scheduler</groupId>
+    <artifactId>job-scheduler</artifactId>
+    <version>1.0.0</version>
+    <name>job-scheduler</name>
+    <description>Distributed Job Scheduler &amp; Workflow Orchestrator</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <lombok.version>1.18.46</lombok.version>
+    </properties>
+
+    <dependencies>
+        <!-- Core web / REST -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- WebSocket (STOMP) for live dashboard updates -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
+        <!-- JPA + Postgres -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Flyway migrations -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
+        <!-- Security + JWT -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- SOAP web service -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Cron parsing -->
+        <dependency>
+            <groupId>com.cronutils</groupId>
+            <artifactId>cron-utils</artifactId>
+            <version>9.2.1</version>
+        </dependency>
+
+        <!-- Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                Explicit annotation processor wiring for Lombok.
+
+                Without this, javac's default behavior is to scan the whole
+                compile classpath for annotation processors, which is
+                fragile: it depends on classpath ordering, on no other
+                dependency shadowing a duplicate/older Lombok jar, and on
+                the exact Maven/compiler-plugin/JDK combination on the
+                machine running the build. That fragility is what caused
+                Job/User's Lombok-generated getters and setters to silently
+                not be generated in some local environments even though the
+                entity source is correct - the compiler applied zero
+                annotation processors and moved on without error, then
+                every call site calling job.getId(), user.getUsername(),
+                etc. failed with "cannot find symbol".
+
+                Declaring annotationProcessorPaths explicitly makes Lombok's
+                processor run deterministically on every machine.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

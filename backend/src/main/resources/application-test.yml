@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Kolkata
+  flyway:
+    enabled: false
+
+app:
+  jwt:
+    secret: test-secret-key-for-unit-tests-only-not-for-production-use
+    expiration-ms: 3600000
